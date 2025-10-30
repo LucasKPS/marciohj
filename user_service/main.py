@@ -1,8 +1,9 @@
+
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# In-memory database for users
+# Banco de dados em memória para usuários
 users = []
 user_id_counter = 1
 
@@ -12,8 +13,16 @@ class User:
         self.id = user_id_counter
         self.name = name
         self.email = email
-        self.watched_series = []
+        self.rated_series = []  # Alterado de watched_series para rated_series
         user_id_counter += 1
+
+# Endpoint para obter um usuário específico e suas avaliações
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = next((user for user in users if user.id == user_id), None)
+    if user:
+        return jsonify(user.__dict__)
+    return jsonify({'error': 'User not found'}), 404
 
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -29,6 +38,28 @@ def create_user():
     users.append(new_user)
     return jsonify(new_user.__dict__), 201
 
+# NOVO ENDPOINT: Para um usuário avaliar uma série
+@app.route('/users/<int:user_id>/rate', methods=['POST'])
+def rate_series(user_id):
+    user = next((user for user in users if user.id == user_id), None)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+    if not data or 'series_id' not in data or 'rating' not in data:
+        return jsonify({'error': 'Missing series_id or rating'}), 400
+
+    series_id = data['series_id']
+    rating = data['rating']
+
+    # Remove a avaliação antiga, se existir, para substituí-la pela nova
+    user.rated_series = [r for r in user.rated_series if r['series_id'] != series_id]
+    
+    # Adiciona a nova avaliação
+    user.rated_series.append({'series_id': series_id, 'rating': rating})
+    
+    return jsonify(user.__dict__), 200
+
 if __name__ == '__main__':
-    # Running on port 5001 to avoid conflicts with other services
+    # Rodando na porta 5001 para evitar conflitos
     app.run(debug=True, port=5001)
