@@ -48,6 +48,10 @@ def series_route():
 def recommendations_route(user_id):
     return forward_request('GET', f'{RECOMMENDATION_SERVICE_URL}/recommendations/{user_id}')
 
+# ROTA NOVA para recomendação por gênero
+@app.route('/recommendations/genre/<string:genre>', methods=['GET'])
+def recommendations_by_genre_route(genre):
+    return forward_request('GET', f'{RECOMMENDATION_SERVICE_URL}/recommendations/genre/{genre}')
 
 # NOVA ROTA: Para avaliar uma série
 @app.route('/users/<int:user_id>/rate', methods=['POST'])

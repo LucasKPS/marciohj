@@ -81,68 +81,35 @@ def list_series():
     wait_for_enter()
 
 def recommend_by_genre():
-    """Nova lógica de recomendação baseada na escolha de um gênero."""
+    """Recomenda uma série com base em um gênero fornecido pelo usuário."""
     clear_screen()
-    print("--- Recomendar por Gênero ---")
-    
-    user_id_str = input("Primeiro, digite o ID do usuário para quem vamos recomendar: ")
-    while not user_id_str.isdigit():
-        user_id_str = input("Inválido. Digite um ID numérico: ")
+    print("--- Recomendar Série por Gênero ---")
+    genre_to_find = input("Digite o gênero que você gostaria de ver (ex: Comédia, Ação): ")
 
-    # 1. Buscar todas as séries para descobrir os gêneros disponíveis
-    all_series = execute_request("GET", "/series", silent=True)
-    if not all_series:
-        print("\nNão foi possível buscar o catálogo de séries. Tente novamente.")
+    if not genre_to_find:
+        print("\nO gênero não pode ser vazio.")
         wait_for_enter()
         return
 
-    # Extrai gêneros únicos e os apresenta ao usuário
-    genres = sorted(list(set(s['genre'] for s in all_series)))
-    clear_screen()
-    print("Escolha um gênero:")
-    for i, genre in enumerate(genres):
-        print(f"  {i + 1}. {genre}")
-    
-    choice_str = input("\nDigite o número do gênero desejado: ")
-    try:
-        choice_idx = int(choice_str) - 1
-        if not 0 <= choice_idx < len(genres):
-            raise ValueError
-        chosen_genre = genres[choice_idx]
-    except (ValueError, IndexError):
-        print("\nEscolha inválida.")
-        wait_for_enter()
-        return
+    # Usa o novo endpoint da API para obter a recomendação, de forma silenciosa
+    recommendations = execute_request("GET", f"/recommendations/genre/{genre_to_find}", silent=True)
 
-    # 2. Buscar os dados do usuário para saber o que ele já viu
-    # A API não tem um GET /users/{id}, então buscamos todos e filtramos.
-    users = execute_request("GET", "/users", silent=True)
-    user = next((u for u in users if u['id'] == int(user_id_str)), None)
-    if not user:
-        print(f"\nUsuário com ID {user_id_str} não encontrado.")
-        wait_for_enter()
-        return
+    if recommendations and isinstance(recommendations, list):
+        # A API retorna uma lista ordenada, então a melhor recomendação é a primeira.
+        best_recommendation = recommendations[0]
+        clear_screen()
+        print("--- Recomendação para você! ---")
+        print(f"Baseado no seu interesse por '{genre_to_find}', recomendamos a seguinte série:")
+        print(json.dumps(best_recommendation, indent=2, ensure_ascii=False))
+    else:
+        # Se a resposta for um erro (dicionário com 'error' ou 'message') ou uma lista vazia
+        print(f"\nNão foi possível encontrar uma recomendação para o gênero '{genre_to_find}'.")
+        # Vamos buscar os gêneros disponíveis para ajudar o usuário
+        all_series = execute_request("GET", "/series", silent=True)
+        if all_series and isinstance(all_series, list):
+             genres = sorted(list(set(s['genre'] for s in all_series)))
+             print("Gêneros disponíveis: " + ", ".join(genres))
 
-    # 3. Filtrar e encontrar a melhor recomendação
-    rated_series_ids = [r['series_id'] for r in user.get('rated_series', [])]
-    
-    candidates = [
-        s for s in all_series
-        if s['genre'] == chosen_genre and s['id'] not in rated_series_ids
-    ]
-    
-    if not candidates:
-        print(f"\nVocê já viu tudo de {chosen_genre}! Que tal explorar outro gênero?")
-        wait_for_enter()
-        return
-
-    # Ordena os candidatos pela maior avaliação
-    best_recommendation = sorted(candidates, key=lambda s: s['rating'], reverse=True)[0]
-
-    clear_screen()
-    print("--- Recomendação para você! ---")
-    print(f"Baseado no seu interesse por '{chosen_genre}', recomendamos a seguinte série:")
-    print(json.dumps(best_recommendation, indent=2, ensure_ascii=False))
     wait_for_enter()
 
 def main_menu():
