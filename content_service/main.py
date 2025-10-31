@@ -29,6 +29,15 @@ def create_series():
     series.append(new_series)
     return jsonify(new_series.__dict__), 201
 
+def add_initial_data():
+    global series
+    series.append(Series(title="The Office", genre="Comédia", rating=5))
+    series.append(Series(title="Breaking Bad", genre="Drama", rating=5))
+    series.append(Series(title="Stranger Things", genre="Ficção Científica", rating=4))
+    series.append(Series(title="Game of Thrones", genre="Fantasia", rating=4))
+    series.append(Series(title="Friends", genre="Comédia", rating=4))
+
 if __name__ == '__main__':
+    add_initial_data()
     # Running on port 5002 to avoid conflicts with other services
     app.run(debug=True, port=5002)

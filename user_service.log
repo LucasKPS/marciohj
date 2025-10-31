@@ -5,5 +5,12 @@
 [33mPress CTRL+C to quit[0m
  * Restarting with stat
  * Debugger is active!
- * Debugger PIN: 622-002-612
-127.0.0.1 - - [30/Oct/2025 20:31:38] "GET /users HTTP/1.1" 200 -
+ * Debugger PIN: 529-179-678
+127.0.0.1 - - [31/Oct/2025 00:49:42] "[33mGET / HTTP/1.1[0m" 404 -
+127.0.0.1 - - [31/Oct/2025 00:52:52] "GET /users HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2025 00:53:32] "[35m[1mPOST /users HTTP/1.1[0m" 201 -
+127.0.0.1 - - [31/Oct/2025 00:53:42] "GET /users HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2025 00:53:48] "GET /users HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2025 01:03:53] "[35m[1mPOST /users HTTP/1.1[0m" 201 -
+127.0.0.1 - - [31/Oct/2025 01:04:02] "GET /users HTTP/1.1" 200 -
+127.0.0.1 - - [31/Oct/2025 01:31:47] "GET /users HTTP/1.1" 200 -

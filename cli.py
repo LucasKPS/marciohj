@@ -150,9 +150,9 @@ if __name__ == "__main__":
         subprocess.run(f"curl -s --head {API_URL}", shell=True, check=True, capture_output=True)
         main_menu()
     except (subprocess.CalledProcessError):
-        print("\n============================================================")
+        print("\n==============================================================")
         print(f"❌ ERRO: Não foi possível conectar à API na porta 5000.")
         print("   Por favor, inicie os serviços com o comando 'bash run.sh'")
         print("   em outro terminal antes de executar este script.")
-        print("============================================================")
+        print("==============================================================")
         sys.exit(1)
